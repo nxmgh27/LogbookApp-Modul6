@@ -7,6 +7,10 @@ class VisionController extends ChangeNotifier with WidgetsBindingObserver {
   bool isInitialized = false;
   String? errorMessage;
 
+  // --- TAMBAHAN HOMEWORK ---
+  bool isFlashOn = false;
+  bool isOverlayActive = true; 
+
   VisionController() {
     WidgetsBinding.instance.addObserver(this);
     initCamera();
@@ -28,11 +32,38 @@ class VisionController extends ChangeNotifier with WidgetsBindingObserver {
       );
 
       await controller!.initialize();
+      
+      // Pastikan flash mati saat awal
+      await controller!.setFlashMode(FlashMode.off); 
+
       isInitialized = true;
       errorMessage = null;
     } catch (e) {
       errorMessage = "Failed to initialize camera: $e";
     }
+    notifyListeners();
+  }
+
+  // --- TAMBAHAN HOMEWORK: Fungsi Toggle Flash ---
+  Future<void> toggleFlash() async {
+    if (controller == null || !isInitialized) return;
+    try {
+      if (isFlashOn) {
+        await controller!.setFlashMode(FlashMode.off);
+        isFlashOn = false;
+      } else {
+        await controller!.setFlashMode(FlashMode.torch); // Torch = Senter nyala terus
+        isFlashOn = true;
+      }
+      notifyListeners();
+    } catch (e) {
+      print("Gagal menyalakan flash: $e");
+    }
+  }
+
+  // --- TAMBAHAN HOMEWORK: Fungsi Toggle Overlay ---
+  void toggleOverlay() {
+    isOverlayActive = !isOverlayActive;
     notifyListeners();
   }
 
