@@ -10,6 +10,7 @@ import 'package:logbook_app_086/features/onboarding/onboarding_view.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'dart:async'; 
+import 'package:logbook_app_086/features/vision/vision_view.dart';
 
 class LogView extends StatefulWidget {
   final String username;
@@ -239,6 +240,16 @@ class _LogViewState extends State<LogView> with SingleTickerProviderStateMixin {
           IconButton(
             icon: const Icon(Icons.logout),
             onPressed: _showLogoutDialog,
+          ),
+          IconButton(
+            icon: const Icon(Icons.camera_alt),
+            tooltip: "Buka Kamera Vision",
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const VisionView()), // Pastikan kamu meng-import VisionView di atas
+              );
+            },
           ),
         ],
       ),
