@@ -2,6 +2,11 @@
 import 'package:flutter/material.dart';
 
 class DamagePainter extends CustomPainter {
+  final double aiX;
+  final double aiY;
+
+  DamagePainter({required this.aiX, required this.aiY});
+
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()
@@ -9,12 +14,15 @@ class DamagePainter extends CustomPainter {
       ..strokeWidth = 3.0
       ..style = PaintingStyle.stroke; 
 
-    double boxSize = size.width * 0.5;
-    double left = (size.width - boxSize) / 2;
-    double top = (size.height - boxSize) / 2;
+    double boxSize = size.width * 0.4; 
+    
+    double centerX = aiX * size.width;
+    double centerY = aiY * size.height;
+
+    double left = centerX - (boxSize / 2);
+    double top = centerY - (boxSize / 2);
 
     final rect = Rect.fromLTWH(left, top, boxSize, boxSize);
-
     canvas.drawRect(rect, paint);
 
     const textStyle = TextStyle(
@@ -25,7 +33,7 @@ class DamagePainter extends CustomPainter {
     );
 
     const textSpan = TextSpan(
-      text: " Searching for Road Damage... ", 
+      text: " [D40] POTHOLE - 92% ", 
       style: textStyle,
     );
 
@@ -37,13 +45,13 @@ class DamagePainter extends CustomPainter {
     textPainter.layout();
     
     double textY = top - 25;
-    if (textY < 0) textY = top + 5;
+    if (textY < 0) textY = top + boxSize + 5; 
 
     textPainter.paint(canvas, Offset(left, textY));
   }
 
   @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) {
-    return false; 
+  bool shouldRepaint(covariant DamagePainter oldDelegate) {
+    return oldDelegate.aiX != aiX || oldDelegate.aiY != aiY; 
   }
 }

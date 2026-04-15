@@ -1,8 +1,10 @@
 // lib/features/vision/vision_view.dart
+import 'dart:async'; 
+import 'dart:math';  
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'vision_controller.dart';
-import 'damage_painter.dart';
+import 'damage_painter.dart'; 
 
 class VisionView extends StatefulWidget {
   const VisionView({super.key});
@@ -13,15 +15,32 @@ class VisionView extends StatefulWidget {
 
 class _VisionViewState extends State<VisionView> {
   late VisionController _visionController;
+  
+  Timer? _mockTimer;
+  double _mockX = 0.5; 
+  double _mockY = 0.5;
 
   @override
   void initState() {
     super.initState();
     _visionController = VisionController();
+    _startMockDetection(); 
+  }
+
+  void _startMockDetection() {
+    _mockTimer = Timer.periodic(const Duration(seconds: 3), (timer) {
+      if (mounted) {
+        setState(() {
+          _mockX = 0.2 + Random().nextDouble() * 0.6; 
+          _mockY = 0.2 + Random().nextDouble() * 0.6;
+        });
+      }
+    });
   }
 
   @override
   void dispose() {
+    _mockTimer?.cancel();
     _visionController.dispose();
     super.dispose();
   }
@@ -29,14 +48,11 @@ class _VisionViewState extends State<VisionView> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.black, 
+      backgroundColor: Colors.black,
       appBar: AppBar(
-        leadingWidth: 40, 
+        leadingWidth: 40,
         titleSpacing: 0,
-        title: const Text(
-          "Smart-Patrol Vision",
-          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
-        ),
+        title: const Text("Smart-Patrol Vision", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
         backgroundColor: const Color(0xFF243C2C),
         foregroundColor: const Color(0xFFECE69D),
       ),
@@ -44,18 +60,8 @@ class _VisionViewState extends State<VisionView> {
         listenable: _visionController,
         builder: (context, child) {
           if (_visionController.errorMessage != null) {
-            return Center(
-              child: Padding(
-                padding: const EdgeInsets.all(20),
-                child: Text(
-                  _visionController.errorMessage!,
-                  textAlign: TextAlign.center,
-                  style: const TextStyle(color: Colors.red, fontWeight: FontWeight.bold),
-                ),
-              ),
-            );
+            return Center(child: Text(_visionController.errorMessage!, style: const TextStyle(color: Colors.red)));
           }
-          
           if (!_visionController.isInitialized || _visionController.controller == null) {
             return const Center(child: CircularProgressIndicator(color: Color(0xFF243C2C)));
           }
@@ -63,7 +69,6 @@ class _VisionViewState extends State<VisionView> {
           return Stack(
             fit: StackFit.expand,
             children: [
-              // LAYER 1: Hardware Preview 
               Center(
                 child: AspectRatio(
                   aspectRatio: 1 / _visionController.controller!.value.aspectRatio,
@@ -71,10 +76,12 @@ class _VisionViewState extends State<VisionView> {
                 ),
               ),
 
-              // LAYER 2: Digital Overlay (Foreground)
               Positioned.fill(
                 child: CustomPaint(
-                  painter: DamagePainter(),
+                  painter: DamagePainter(
+                    aiX: _mockX,
+                    aiY: _mockY,
+                  ),
                 ),
               ),
             ],
